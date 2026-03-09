@@ -1,9 +1,54 @@
-
+import { Link } from "react-router-dom";
+import Logo from "../images/header-logo.png";
+import searchIcon from "../images/icons/searchIcon.png";
+import shoppingCart from "../images/icons/shopping-cart.png";
+import "./header.css";
 
 const Header = () => {
   return (
-    <div>Header</div>
-  )
-}
+    <div className="header">
+      <Link to="/">
+        <img src={Logo} className="header-logo" alt="logo" />
+      </Link>
+      <div className="header-search">
+        <input type="text" className="header-searchInput" />
+        <img
+          className="header-searchIcon"
+          src={searchIcon}
+          alt="search-icon"
+          width="20px"
+          height="20px"
+        />
+      </div>
+      <div className="header-nav">
+        {/* Menu de connexion */}
+        <Link to="/login">
+          <div className="header-option">
+            <div className="header-optionLineOne">Hello Guest</div>
+            <div className="header-optionLineTwo">Sign In</div>
+          </div>
+        </Link>
+        {/* Menu pour commande */}
+        <Link to="/orders">
+          <div className="header-option">
+            <div className="header-optionLineOne">Returns</div>
+            <div className="header-optionLineTwo">& Orders</div>
+          </div>
+        </Link>
+        <div className="header-option">
+          <div className="header-optionLineOne">Your</div>
+          <div className="header-optionLineTwo">Prime</div>
+        </div>
+        {/* Menu du Panier  */}
+        <Link to="/checkout">
+          <div className="header-optionBasket">
+            <img src={shoppingCart} alt="shoppingCart" width="20px" height="20px"/>
+             <span className="header-optionLineTwo header-basketCount">5</span>
+          </div>
+        </Link>
+      </div>
+    </div>
+  );
+};
 
-export default Header
+export default Header;
