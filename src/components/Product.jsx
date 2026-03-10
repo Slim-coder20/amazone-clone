@@ -3,6 +3,26 @@ import starIcon from "../images/icons/star.png";
 import "./product.css";
 
 const Product = ({ id, image, price, title, rating }) => {
+
+  const { dispatch, basket } = useAuth();
+
+  // Fonction pour la soumission du bouton add to basket avec AppReducer pour ajouter l'article au panier //
+  const addToBasket = () => {
+    // Appel de la fonction dispatch pour ajouter l'article au panier avec AppReducer //
+    dispatch({
+      type: "ADD_TO_BASKET",
+      item: {
+        id: id,
+        title: title,
+        image: image,
+        price: price,
+        rating: rating,
+      },
+    });
+  };
+  
+   
+
   return (
     <div className="product">
       <div className="product-info">
@@ -25,9 +45,9 @@ const Product = ({ id, image, price, title, rating }) => {
           ))}
       </div>
       {/* Affichage de l'image du produit */}
-        <img src={image} alt="product-img" />
+      <img src={image} alt="product-img" />
       {/* Bouton d'ajout au panier */}
-      <button>Add to basket</button>
+      <button onClick={addToBasket}>Add to basket</button>
     </div>
   );
   // Retourne le composant Product avec les informations du produit //

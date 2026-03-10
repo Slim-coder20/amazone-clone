@@ -40,7 +40,7 @@ const Footer = () => {
       </div>
       <div className="footer-bottom">
         <span className="footer-copyright">
-          © {new Date().getFullYear()} Amazon Clone. Tous droits réservés.
+          © {new Date().getFullYear()} Amazon Clone. All rights reserved.
         </span>
       </div>
     </footer>

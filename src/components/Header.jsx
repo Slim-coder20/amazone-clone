@@ -8,7 +8,7 @@ import "./header.css";
 
 const Header = () => {
   // Appel du context de l'authentification pour récuprérer l'utilisateur connecté et le stocker dans le state de l'application //
-  const { user } = useAuth();
+  const { user, basket } = useAuth();
   // Appel de la fonction de déconnexion de l'utilisateur via la méthode sign Out de firebase //
   const handleAuthentication = () => {
     auth.signOut(); 
@@ -63,7 +63,9 @@ const Header = () => {
               width="20px"
               height="20px"
             />
-            <span className="header-optionLineTwo header-basketCount">5</span>
+            <span className="header-optionLineTwo header-basketCount">
+              {basket?.length}
+            </span>
           </div>
         </Link>
       </div>
