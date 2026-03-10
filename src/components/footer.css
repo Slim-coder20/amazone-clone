@@ -1,0 +1,85 @@
+.footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #131921;
+  color: white;
+  padding: 24px 0 16px;
+}
+
+.footer-logoLink {
+  margin-bottom: 16px;
+}
+
+.footer-logo {
+  width: 100px;
+  object-fit: contain;
+}
+
+.footer-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.footer-nav .footer-option,
+.footer-nav .footer-optionBasket {
+  color: white;
+}
+
+.footer-option,
+.footer-optionBasket {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 16px;
+  margin: 0 4px;
+}
+
+.footer-optionLineOne {
+  font-size: 10px;
+}
+
+.footer-optionLineTwo {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.footer-optionBasket {
+  flex-direction: row;
+}
+
+.footer-optionBasket .footer-basketCount {
+  margin-left: 8px;
+}
+
+.footer-optionBasket img {
+  filter: brightness(0) invert(1);
+}
+
+.footer-bottom {
+  padding-top: 12px;
+  border-top: 1px solid #3b4149;
+  width: 100%;
+  text-align: center;
+}
+
+.footer-copyright {
+  font-size: 12px;
+  color: #cccccc;
+}
+
+/* Liens du footer (même style que header) */
+.footer a {
+  color: white;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: #cd9042;
+  text-decoration: underline;
+}
