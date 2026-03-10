@@ -7,12 +7,13 @@ import { auth } from "../firebase";
 import "./header.css";
 
 const Header = () => {
+  // Appel du context de l'authentification pour récuprérer l'utilisateur connecté et le stocker dans le state de l'application //
   const { user } = useAuth();
-
-  // Création de la fonction de l'authentification pour la déconnexion du User via la méthode sign Out de firebase // 
+  // Appel de la fonction de déconnexion de l'utilisateur via la méthode sign Out de firebase //
   const handleAuthentication = () => {
     auth.signOut(); 
   }
+  // Retourne le composant Header avec les options de navigation //
   return (
     <div className="header">
       <Link to="/">
@@ -33,9 +34,11 @@ const Header = () => {
         <Link to={!user && "/login"}>
           <div className="header-option" onClick={handleAuthentication}>
             <span className="header-optionLineOne">
+              {/* Affichage de l'email de l'utilisateur connecté ou de "Guest" si l'utilisateur n'est pas connecté */}
               Hello {user ? `${user.email}` : "Guest"}
             </span>
             <span className="header-optionLineTwo">
+              {/* Affichage de la fonction de déconnexion ou de connexion en fonction de l'état de l'utilisateur */}
               {user ? "Sign Out" : "Sign In"}
             </span>
           </div>
