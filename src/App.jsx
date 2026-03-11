@@ -5,6 +5,7 @@ import Footer from "./components/Footer";
 import Home from "./components/Home"; 
 import Login from "./components/Login";
 import Checkout from "./components/Checkout";
+import Payment from "./components/Payment";
 import { auth } from "./firebase";
 import { useAuth } from "./context/GlobalContext";
 function App() {
@@ -52,6 +53,15 @@ function App() {
           }
         />
         <Route path="*" element={<h1>Page Not Found</h1>} />
+        <Route
+          path="/payment"
+          element={
+            <>
+              <Header />
+              <Payment/>
+            </>
+          }
+        />
       </Routes>
     </div>
   );

@@ -3,7 +3,7 @@ import { useAuth } from "../context/GlobalContext";
 import starIcon from "../images/icons/star.png";
 import "./checkoutproduct.css";
 
-const CheckoutProduct = ({ id, image, title, price, rating, hiddenButton }) => {
+const CheckoutProduct = ({ id, image, title, price, rating, hiddenButton}) => {
   const { dispatch } = useAuth();
   const removeFromBasket = () => {
     dispatch({
