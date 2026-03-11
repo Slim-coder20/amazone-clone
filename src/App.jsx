@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./components/Home"; 
 import Login from "./components/Login";
+import Checkout from "./components/Checkout";
 import { auth } from "./firebase";
 import { useAuth } from "./context/GlobalContext";
 function App() {
@@ -41,6 +42,15 @@ function App() {
           }
         />
         <Route path="/login" element={<Login />} />
+        <Route
+          path="/checkout"
+          element={
+            <>
+              <Header />
+              <Checkout />
+            </>
+          }
+        />
         <Route path="*" element={<h1>Page Not Found</h1>} />
       </Routes>
     </div>

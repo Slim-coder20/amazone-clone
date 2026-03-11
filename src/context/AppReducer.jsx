@@ -3,6 +3,15 @@
  * et de les partager entre les composants 
  */
 // Création de l'état initial de l'application //
+
+
+// Fonction pour calculer le total du panier // 
+export const getBasketTotal = (basket) => {
+  return basket.reduce((amount, item) =>{
+    return amount + item.price; 
+  } , 0)
+
+}
 export const initialState = {
   basket: [],
   user: null,
@@ -23,6 +32,31 @@ const AppReducer = (state = initialState, action) => {
       return {
         ...state,
         basket: [...state.basket, action.item],
+      };
+    // Supprime tous le panier //
+    case "EMPTY_BASKET":
+      return {
+        ...state,
+        basket: [],
+      };
+
+    case "REMOVE_FROM_BASKET":
+      // Supprime un produit du panier
+      const index = state.basket?.findIndex(
+        (basketItem) => basketItem.id === action.id,
+      );
+      let newBasket = [...state.basket];
+
+      if (index >= 0) {
+        newBasket.splice(index, 1);
+      } else {
+        console.warn(
+          `can't remove product {id ${action.id} as it's not in basket!`,
+        );
+      }
+      return {
+        ...state,
+        basket: newBasket,
       };
     default:
       // Retourne l'état actuel de l'application si l'action n'est pas reconnue //
