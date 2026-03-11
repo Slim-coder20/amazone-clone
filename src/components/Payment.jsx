@@ -1,12 +1,20 @@
 import "./payment.css";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/GlobalContext";
+import { CardElement } from "@stripe/react-stripe-js";
 import CheckoutProduct from "./CheckoutProduct";
 import CurrencyFormat from "react-currency-format";
 import { getBasketTotal } from "../context/AppReducer";
 
 const Payment = () => {
   const { basket, user } = useAuth();
+  // Fonction pour la soumission du formulaire du paiement // 
+  const handleSubmit = (e) => {
+    e.preventDefault(); 
+    
+  }
+  // Création de la fonction hnadleChange pour effectué le paiment en ligne //
+  const handleChange = () => {};
   return (
     <div className="payment">
       <div className="payment-container">
@@ -45,8 +53,10 @@ const Payment = () => {
         <div className="payment-section">
           <h3>Payment method</h3>
           <div className="payment-details">
-            <form action="">
+            {/* Formulaire du paiement en ligne Stripe  */}
+            <form onSubmit={handleSubmit}>
               {/* Stripe Card */}
+              <CardElement onChange={handleChange} />
               <div className="payment-priceContainer">
                 <CurrencyFormat
                   renderText={(value) => <h3>Order Total : {value}</h3>}
@@ -56,7 +66,7 @@ const Payment = () => {
                   thousandSeparator={true}
                   prefix={"€"}
                 />
-                <button className="payment-details button">
+                <button className="payment-details button" type="submit">
                   <span>Buy Now</span>
                 </button>
               </div>
@@ -66,6 +76,6 @@ const Payment = () => {
       </div>
     </div>
   );
-};
+};;;
 
 export default Payment;
