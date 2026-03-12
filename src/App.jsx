@@ -1,13 +1,19 @@
 import { Routes, Route } from "react-router-dom";
-import { useEffect } from "react"; 
+import { useEffect } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import Home from "./components/Home"; 
+import Home from "./components/Home";
 import Login from "./components/Login";
 import Checkout from "./components/Checkout";
 import Payment from "./components/Payment";
+import Orders from "./components/Orders";
 import { auth } from "./firebase";
 import { useAuth } from "./context/GlobalContext";
+
+// Clé publique Stripe (à définir dans .env : VITE_STRIPE_PUBLISHABLE_KEY=pk_...)
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "");
 function App() {
   // Appel du context de l'authentification pour récuprérer l'utilisateur connecté et le stocker dans le state de l'application //
   const { dispatch } = useAuth();
@@ -58,7 +64,18 @@ function App() {
           element={
             <>
               <Header />
-              <Payment/>
+              <Elements stripe={stripePromise}>
+                <Payment />
+              </Elements>
+            </>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <>
+              <Header />
+              <Orders />
             </>
           }
         />
