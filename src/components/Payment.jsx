@@ -24,6 +24,9 @@ import { getBasketTotal } from "../context/AppReducer";
 import axios from "./axios";
 import CheckoutProduct from "./CheckoutProduct";
 import CurrencyFormat from "react-currency-format";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../firebase";
+import shortid from "shortid";
 import "./payment.css";
 
 const Payment = () => {
@@ -48,16 +51,25 @@ const Payment = () => {
   // Étape 1 : récupérer le clientSecret auprès du backend
   // =========================================================================
   // Le backend crée un Payment Intent Stripe et renvoie client_secret.
-  // Ce secret permet au front de confirmer le paiement sans envoyer la carte au serveur.
-  // Total envoyé en centimes (getBasketTotal en € × 100).
+  // On n'appelle l'API que si le panier a des articles et un total > 0 (sinon le backend renvoie 400).
   useEffect(() => {
+    const total = getBasketTotal(basket);
+    if (!basket?.length || total <= 0) {
+      setClientSecret(undefined);
+      return;
+    }
     const getClientSecret = async () => {
-      const response = await axios({
-        method: "POST",
-        url: `/payments/create?total=${getBasketTotal(basket) * 100}`,
-      });
-      setClientSecret(response.data.clientSecret);
-      return response;
+      try {
+        const response = await axios({
+          method: "POST",
+          url: `/payments/create?total=${Math.round(total * 100)}`,
+        });
+        setClientSecret(response.data.clientSecret);
+        setError(null);
+      } catch (err) {
+        setError(err.response?.data?.error || "Impossible de préparer le paiement. Vérifiez que le backend est démarré.");
+        setClientSecret(undefined);
+      }
     };
     getClientSecret();
   }, [basket]);
@@ -67,6 +79,7 @@ const Payment = () => {
   // =========================================================================
   const handleSubmit = async (e) => {
     e.preventDefault();
+   
     if (!stripe || !elements || !clientSecret) return;
 
     setProcessing(true);
@@ -74,7 +87,7 @@ const Payment = () => {
 
     // confirmCardPayment : envoie les données carte à Stripe et confirme le Payment Intent.
     // Retourne { error } en cas d’échec, sinon le paiement est réussi.
-    const { error: stripeError } = await stripe.confirmCardPayment(clientSecret, {
+    const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
       payment_method: {
         card: elements.getElement(CardElement),
       },
@@ -85,6 +98,16 @@ const Payment = () => {
       setProcessing(false);
       return;
     }
+
+    // --- Paiement réussi : enregistrer la commande dans Firestore ---
+    const orderId = shortid.generate();
+    const ref = doc(db, "users", user?.uid, "orders", orderId);
+    await setDoc(ref, {
+      basket,
+      amount: getBasketTotal(basket),
+      createdAt: serverTimestamp(),
+      paymentIntentId: paymentIntent?.id, // référence Stripe (traçabilité / support)
+    });
 
     setSucceeded(true);
     setProcessing(false);
