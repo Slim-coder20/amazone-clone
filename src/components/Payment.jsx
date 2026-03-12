@@ -1,6 +1,23 @@
+/**
+ * =============================================================================
+ * COMPOSANT PAYMENT – Page de paiement Stripe
+ * =============================================================================
+ *
+ * Ce composant doit être rendu à l’intérieur d’un <Elements> (voir App.jsx)
+ * pour que useStripe() et useElements() fonctionnent.
+ *
+ * Logique du flux de paiement :
+ * 1. Au chargement : on demande au backend un clientSecret (Payment Intent Stripe).
+ * 2. L’utilisateur remplit le formulaire carte (CardElement) et clique sur "Buy Now".
+ * 3. On appelle stripe.confirmCardPayment(clientSecret, { card }) pour confirmer.
+ * 4. Si succès : redirection vers /orders et vidage du panier.
+ * 5. Si erreur : affichage du message d’erreur Stripe.
+ *
+ * =============================================================================
+ */
+
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/GlobalContext";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { getBasketTotal } from "../context/AppReducer";
@@ -10,23 +27,29 @@ import CurrencyFormat from "react-currency-format";
 import "./payment.css";
 
 const Payment = () => {
+  // --- Contexte et navigation ---
   const { basket, user, dispatch } = useAuth();
   const navigate = useNavigate();
 
-  // State //
+  // --- État lié au paiement Stripe ---
   const [clientSecret, setClientSecret] = useState();
-
-  // State Error
   const [error, setError] = useState(null);
-  const [disabled, setDisabled] = useState(true);
-  const [succeeded, setSucceeded] = useState(false);
-  const [processing, setProcessing] = useState("");
+  const [disabled, setDisabled] = useState(true);   // true = champ carte vide ou invalide → bouton désactivé
+  const [succeeded, setSucceeded] = useState(false); // paiement réussi
+  const [processing, setProcessing] = useState("");  // en cours de traitement (affiche "Processing...")
 
-  // Ce sont des hooks de stripe pour permettre le paiement en ligne //
+  // Hooks Stripe : fournis par le provider <Elements> (App.jsx).
+  // stripe = instance pour appeler l’API (ex. confirmCardPayment)
+  // elements = conteneur des éléments de formulaire (ex. CardElement)
   const stripe = useStripe();
   const elements = useElements();
 
-  // useEffect nous servira a ebvoyer notre requete de la somme total du panier vers le back //
+  // =========================================================================
+  // Étape 1 : récupérer le clientSecret auprès du backend
+  // =========================================================================
+  // Le backend crée un Payment Intent Stripe et renvoie client_secret.
+  // Ce secret permet au front de confirmer le paiement sans envoyer la carte au serveur.
+  // Total envoyé en centimes (getBasketTotal en € × 100).
   useEffect(() => {
     const getClientSecret = async () => {
       const response = await axios({
@@ -39,39 +62,57 @@ const Payment = () => {
     getClientSecret();
   }, [basket]);
 
-  // Fonction pour la soumission du formulaire du paiement //
+  // =========================================================================
+  // Soumission du formulaire : confirmer le paiement avec Stripe
+  // =========================================================================
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!stripe || !elements || !clientSecret) return;
+
     setProcessing(true);
     setError(null);
+
+    // confirmCardPayment : envoie les données carte à Stripe et confirme le Payment Intent.
+    // Retourne { error } en cas d’échec, sinon le paiement est réussi.
     const { error: stripeError } = await stripe.confirmCardPayment(clientSecret, {
       payment_method: {
         card: elements.getElement(CardElement),
       },
     });
+
     if (stripeError) {
       setError(stripeError.message);
       setProcessing(false);
       return;
     }
+
     setSucceeded(true);
     setProcessing(false);
     navigate("/orders", { replace: true });
     dispatch({ type: "EMPTY_BASKET" });
   };
-  // Création de la fonction hnadleChange pour effectué le paiment en ligne //
+
+  // =========================================================================
+  // Changement dans le champ carte (CardElement)
+  // =========================================================================
+  // e.empty = true si le champ est vide → on désactive le bouton.
+  // e.error = erreur de validation Stripe (ex. numéro invalide) → on l’affiche.
   const handleChange = (e) => {
     setDisabled(e.empty);
     setError(e.error ? e.error.message : "");
   };
+
+  // =========================================================================
+  // Rendu : adresse, récap panier, formulaire carte + total + bouton
+  // =========================================================================
   return (
     <div className="payment">
       <div className="payment-container">
         <h1>
           Checkout (<Link to="/checkout">{basket.length} items</Link>)
         </h1>
-        {/* Delivery address section */}
+
+        {/* Adresse de livraison (affichage) */}
         <div className="payment-section">
           <div className="payment-title">
             <h3>Delivery Address</h3>
@@ -81,7 +122,8 @@ const Payment = () => {
             <p>Montrouge, France</p>
           </div>
         </div>
-        {/* Review Items */}
+
+        {/* Récapitulatif des articles du panier */}
         <div className="payment-section">
           <div className="payment-title">
             <h3>Review Items and delivery</h3>
@@ -99,13 +141,13 @@ const Payment = () => {
             ))}
           </div>
         </div>
-        {/* Payment method  */}
+
+        {/* Formulaire de paiement Stripe */}
         <div className="payment-section">
           <h3>Payment method</h3>
           <div className="payment-details">
-            {/* Formulaire du paiement en ligne Stripe  */}
             <form onSubmit={handleSubmit}>
-              {/* Stripe Card */}
+              {/* Champ carte Stripe (numéro, date, CVC) – les données ne passent jamais par notre serveur */}
               <CardElement onChange={handleChange} />
               <div className="payment-priceContainer">
                 <CurrencyFormat
